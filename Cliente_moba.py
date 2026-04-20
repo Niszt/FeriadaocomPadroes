@@ -93,7 +93,12 @@ class Inventario():
         print(f"\n")
                 
     
-class Cliente():
+class Observador(ABC):
+    @abstractmethod
+    def atualizar(self, msg):
+        pass
+        
+class Cliente(Observador):
     def __init__(self, nome_perfil,_nome_usuario,_senha,moeda_jogo, nivel=1):
         self.nome_perfil = nome_perfil
         self._nome_usuario = _nome_usuario
@@ -103,7 +108,19 @@ class Cliente():
         self.inventario = Inventario()
         self.nivel = nivel
         self.banido = False
+        
+    def atualizar(self, msg):
+        print(f"aviso para {self.nome_perfil}: {msg}")
 
+    def add_amigo(self, amigo : Observador):
+        self._amigos.append(amigo)
+        
+    def atualizar(self, msg):
+        print(f"aviso para {self.nome_perfil}: {msg}")
+        
+    def notificar_amigos(self,msg):
+        for amigo in self._amigos:
+            amigo.atualizar(msg)
 
 class LojaRiot:
     _intancia = None
@@ -136,6 +153,8 @@ class FilaRanqueada(IPartida):
 class Proxy_FilaRanqueada(IPartida):
     def __init__(self):
         self._partida_real = FilaRanqueada()
+        # self._amigos = []
+        
     def buscar_partida(self, cliente:Cliente):
         if cliente.banido:
             print(f"{cliente.nome_perfil} está banido por ser tóxico no chat!")
@@ -143,8 +162,11 @@ class Proxy_FilaRanqueada(IPartida):
             print(f"para jogar na fila ranqueada é necessário ter no mínimo lvl 30. O invocador {cliente.nome_perfil} é nível {cliente.nivel}.")
         else:
             print("Tudo certo! Liberando acesso ao Servidor..")
+            cliente.notificar_amigos(f"O invocador {cliente.nome_perfil} entrou em um grupo para jogar ranqueada")
             self._partida_real.buscar_partida(cliente)
-    
+            
+        
+        
 class FachadaClientLoL:
     # aqui eu vou trazer as classes que interagem com o usuario
     def __init__(self):
@@ -161,15 +183,18 @@ class FachadaClientLoL:
     def add_borda(self, skin: Skin):
         return DecoradorBorda(skin)
     def add_voz(self, skin: Skin):
-        return DecoradorBorda(skin)
+        return DecoradorVoz(skin)
     
     def compra_skin(self,cliente:Cliente, skin:Skin):
         self.loja.comprar_skins(cliente,skin)
     
     def Iniciar_ranked(self,cliente:Cliente):
         self.ranked.buscar_partida(cliente)
-        
-
+    
+    def adicionar_amigo(self,jogador:Cliente,amigo:Cliente):
+        jogador.add_amigo(amigo)
+        print(f"\n{amigo.nome_perfil} foi adicionado a sua lista de amizade")
+    
 if __name__ == "__main__":
     cliente_lol = FachadaClientLoL()
     
@@ -178,6 +203,10 @@ if __name__ == "__main__":
     invocador3 = Cliente("Tyler1", "hehexd", "senha789", 0, nivel=100)
     invocador4 = Cliente("LuluDeDemacia", "luluhahaha", "senha9089", 0, nivel=10)
     invocador3.banido = True 
+    
+    cliente_lol.adicionar_amigo(invocador1, invocador2)
+    cliente_lol.adicionar_amigo(invocador2, invocador3)
+    cliente_lol.adicionar_amigo(invocador2,invocador4)
     
     skin1 = cliente_lol.criar_skin("rara","Yasuo","Projeto Yasuo")    
     skin2 = cliente_lol.criar_skin("lendaria","Lee sin", "Lee Sin Punhos Divinos")
