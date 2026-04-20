@@ -33,7 +33,29 @@ class FabricaSkin:
             return SkinLendaria(nome, campeao, 1820)
         else:
             raise ValueError(f"Raridade {raridade} desconhecida")
+
+class SkinWildRift:
+    def __init__(self, titulo, personagem, custo_wild_cores):
+        self.titulo = titulo
+        self.personagem = personagem
+        self.custo_wild_cores = custo_wild_cores
         
+    def info_skin_mobile(self):
+        return f"Skin Mobile {self.personagem} {self.titulo} - Custo: {self.custo_wild_cores} WC"
+
+class AdaptadorSkinCelulol(Skin):
+    def __init__(self, skin_externa: SkinWildRift):
+        preco_rp = int(skin_externa.custo_wild_cores*1.8)
+        super().__init__(
+            nome=skin_externa.titulo,
+            campeao = skin_externa.personagem,
+            preco = preco_rp
+        )
+        self._skin_externa = skin_externa
+    
+    def detalhe(self):
+        return f"{self._skin_externa.info_skin_mobile}"
+    
 class Inventario():
     def __init__(self):
         self._skins=[]
@@ -115,12 +137,15 @@ if __name__ == "__main__":
     skin1 = fabrica.criar_skin("rara","Yasuo","Projeto Yasuo")    
     skin2 = fabrica.criar_skin("lendaria","Lee sin", "Lee Sin Punhos Divinos")
     skin3 = fabrica.criar_skin("ultimate","Lux","Lux Elementalista")
+    skin_astramante_mobile = SkinWildRift("Astramante", "Twisted Fate", 990)
+    skin_astramante_adaptada = AdaptadorSkinCelulol(skin_astramante_mobile)
     loja.comprar_skins(invocador1,skin3)
     loja.comprar_skins(invocador1,skin2)
     loja.comprar_skins(invocador1,skin1)
     loja.comprar_skins(invocador2,skin3)
     loja.comprar_skins(invocador2,skin2)
     loja.comprar_skins(invocador2,skin1)
+    loja.comprar_skins(invocador2,skin_astramante_adaptada)
     invocador1.inventario.listar_skin(invocador1.nome_perfil)
     invocador2.inventario.listar_skin(invocador1.nome_perfil)
     ranked.buscar_partida(invocador1)
