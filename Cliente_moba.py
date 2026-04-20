@@ -54,7 +54,30 @@ class AdaptadorSkinCelulol(Skin):
         self._skin_externa = skin_externa
     
     def detalhe(self):
-        return f"{self._skin_externa.info_skin_mobile}"
+        return f"{self._skin_externa.info_skin_mobile()}"
+
+class SkinDecorador(Skin):
+    def __init__(self,skin_original: Skin):
+        self._skin_original = skin_original
+        super().__init__(skin_original.nome,skin_original.campeao,skin_original.preco)
+    
+    @abstractmethod
+    def detalhe(self):
+        pass
+
+class DecoradorBorda(SkinDecorador):
+    def __init__(self, skin_original:Skin):
+        super().__init__(skin_original)
+        self.preco = self._skin_original.preco + 350
+    def detalhe(self):
+        return f"{self._skin_original.detalhe()}"+" com borda personalizada"
+    
+class DecoradorVoz(SkinDecorador):
+    def __init__(self, skin_original:Skin):
+        super().__init__(skin_original)
+        self.preco = self._skin_original.preco + 500
+    def detalhe(self):
+        return f"{self._skin_original.detalhe()}"+" com pacote de voz personalizado"
     
 class Inventario():
     def __init__(self):
@@ -135,6 +158,10 @@ class FachadaClientLoL:
     def criar_skin_externa(self,titulo,personagem,custo):
         skin_externa = SkinWildRift(titulo, personagem, custo)
         return AdaptadorSkinCelulol(skin_externa)
+    def add_borda(self, skin: Skin):
+        return DecoradorBorda(skin)
+    def add_voz(self, skin: Skin):
+        return DecoradorBorda(skin)
     
     def compra_skin(self,cliente:Cliente, skin:Skin):
         self.loja.comprar_skins(cliente,skin)
@@ -155,17 +182,22 @@ if __name__ == "__main__":
     skin1 = cliente_lol.criar_skin("rara","Yasuo","Projeto Yasuo")    
     skin2 = cliente_lol.criar_skin("lendaria","Lee sin", "Lee Sin Punhos Divinos")
     skin3 = cliente_lol.criar_skin("ultimate","Lux","Lux Elementalista")
+    skin3_borda = cliente_lol.add_borda(skin3)
+    skin3_borda_voz = cliente_lol.add_voz(skin3_borda)
     skin_astramante_adaptada = cliente_lol.criar_skin_externa("Astramante", "Twisted Fate", 990)
     cliente_lol.compra_skin(invocador1,skin3)
     cliente_lol.compra_skin(invocador1,skin2)
     cliente_lol.compra_skin(invocador1,skin1)
-    cliente_lol.compra_skin(invocador2,skin3)
+    # cliente_lol.compra_skin(invocador2,skin3)
     cliente_lol.compra_skin(invocador2,skin2)
     cliente_lol.compra_skin(invocador2,skin1)
     cliente_lol.compra_skin(invocador2,skin_astramante_adaptada)
+    cliente_lol.compra_skin(invocador2,skin3_borda_voz)
+    cliente_lol.compra_skin(invocador1,skin3_borda)
+    cliente_lol.compra_skin(invocador3,skin3_borda)
     
     invocador1.inventario.listar_skin(invocador1.nome_perfil)
-    invocador2.inventario.listar_skin(invocador1.nome_perfil)
+    invocador2.inventario.listar_skin(invocador2.nome_perfil)
     
     cliente_lol.Iniciar_ranked(invocador1)
     cliente_lol.Iniciar_ranked(invocador2)
