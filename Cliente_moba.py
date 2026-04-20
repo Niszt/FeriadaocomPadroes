@@ -49,13 +49,15 @@ class Inventario():
                 
     
 class Cliente():
-    def __init__(self, nome_perfil,_nome_usuario,_senha,moeda_jogo):
+    def __init__(self, nome_perfil,_nome_usuario,_senha,moeda_jogo, nivel=1):
         self.nome_perfil = nome_perfil
         self._nome_usuario = _nome_usuario
         self._senha = _senha
         self._moeda_jogo = moeda_jogo
         self._amigos = []
         self.inventario = Inventario()
+        self.nivel = nivel
+        self.banido = False
 
 
 class LojaRiot:
@@ -74,13 +76,42 @@ class LojaRiot:
             print(f"{cliente.nome_perfil} voce comprou a skin {skin.nome}. Saldo restante na conta de {cliente._moeda_jogo} RP")
         else:
             print(f"saldo insuficiente para comprar a {skin.detalhe()}")
-        
+
+# primeiro crio a interface que representa o que o objeto real e proxy vao usar
+class IPartida(ABC):
+    @abstractmethod
+    def buscar_partida(self, cliente : Cliente):
+        pass
+
+# comecando pelo objeto real
+class FilaRanqueada(IPartida):
+    def buscar_partida(self, cliente):
+        print(f"{cliente.nome_perfil} entrou na fila. Buscando mais 9 jogadores.")
+
+class Proxy_FilaRanqueada(IPartida):
+    def __init__(self):
+        self._partida_real = FilaRanqueada()
+    def buscar_partida(self, cliente:Cliente):
+        if cliente.banido:
+            print(f"{cliente.nome_perfil} está banido por ser tóxico no chat!")
+        elif cliente.nivel < 30:
+            print(f"para jogar na fila ranqueada é necessário ter no mínimo lvl 30. O invocador {cliente.nome_perfil} é nível {cliente.nivel}.")
+        else:
+            print("Tudo certo! Liberando acesso ao Servidor..")
+            self._partida_real.buscar_partida(cliente)
+    
+
+
 if __name__ == "__main__":
     
     fabrica = FabricaSkin()
     loja = LojaRiot()
-    invocador1 = Cliente("Hide on Bush#SKT","Faker","melhordomundo@123",6000)   
-    invocador2 = Cliente("Nick#BR1","Nick","souNick21314",12000)     
+    ranked = Proxy_FilaRanqueada()
+    invocador1 = Cliente("Hide on Bush#SKT","Faker","melhordomundo@123",6000,nivel=700)   
+    invocador2 = Cliente("Nick#BR1","Nick","souNick21314",12000,nivel=350)  
+    invocador3 = Cliente("Tyler1", "hehexd", "senha789", 0, nivel=100)
+    invocador4 = Cliente("LuluDeDemacia", "luluhahaha", "senha9089", 0, nivel=10)
+    invocador3.banido = True 
     skin1 = fabrica.criar_skin("rara","Yasuo","Projeto Yasuo")    
     skin2 = fabrica.criar_skin("lendaria","Lee sin", "Lee Sin Punhos Divinos")
     skin3 = fabrica.criar_skin("ultimate","Lux","Lux Elementalista")
@@ -92,6 +123,9 @@ if __name__ == "__main__":
     loja.comprar_skins(invocador2,skin1)
     invocador1.inventario.listar_skin(invocador1.nome_perfil)
     invocador2.inventario.listar_skin(invocador1.nome_perfil)
-
+    ranked.buscar_partida(invocador1)
+    ranked.buscar_partida(invocador2)
+    ranked.buscar_partida(invocador3)
+    ranked.buscar_partida(invocador4)
     
     
