@@ -34,7 +34,19 @@ class FabricaSkin:
         else:
             raise ValueError(f"Raridade {raridade} desconhecida")
         
-            
+class Inventario():
+    def __init__(self):
+        self._skins=[]
+        
+    def add_skin(self, skin: Skin):
+        self._skins.append(skin)
+               
+    def listar_skin(self, nome_perfil):
+        print(f"\n skins do invocador {nome_perfil}:")
+        for i in self._skins:
+            print(f"{i.detalhe()}\n")
+        print(f"\n")
+                
     
 class Cliente():
     def __init__(self, nome_perfil,_nome_usuario,_senha,moeda_jogo):
@@ -43,16 +55,7 @@ class Cliente():
         self._senha = _senha
         self._moeda_jogo = moeda_jogo
         self._amigos = []
-        self._skins = []
-    
-    def add_skin(self, skin: Skin):
-        self._skins.append(skin)
-               
-    def listar_skin(self):
-        print(f"\n skins do invocador {self.nome_perfil}:")
-        for i in self._skins:
-            print(f"{i.detalhe()}\n")
-        print(f"\n")
+        self.inventario = Inventario()
 
 
 class LojaRiot:
@@ -67,7 +70,7 @@ class LojaRiot:
         print(f"\n processando a compra da skin {skin.nome}")
         if cliente._moeda_jogo >= skin.preco:
             cliente._moeda_jogo -= skin.preco
-            cliente.add_skin(skin)
+            cliente.inventario.add_skin(skin)
             print(f"{cliente.nome_perfil} voce comprou a skin {skin.nome}. Saldo restante na conta de {cliente._moeda_jogo} RP")
         else:
             print(f"saldo insuficiente para comprar a {skin.detalhe()}")
@@ -87,8 +90,8 @@ if __name__ == "__main__":
     loja.comprar_skins(invocador2,skin3)
     loja.comprar_skins(invocador2,skin2)
     loja.comprar_skins(invocador2,skin1)
-    invocador1.listar_skin()
-    invocador2.listar_skin()
+    invocador1.inventario.listar_skin(invocador1.nome_perfil)
+    invocador2.inventario.listar_skin(invocador1.nome_perfil)
 
     
     
