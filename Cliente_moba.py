@@ -122,35 +122,54 @@ class Proxy_FilaRanqueada(IPartida):
             print("Tudo certo! Liberando acesso ao Servidor..")
             self._partida_real.buscar_partida(cliente)
     
-
+class FachadaClientLoL:
+    # aqui eu vou trazer as classes que interagem com o usuario
+    def __init__(self):
+        self.fabrica = FabricaSkin()
+        self.loja = LojaRiot()
+        self.ranked = Proxy_FilaRanqueada()
+    # encapsulei o metodo que cria e que compra skin da loja 
+    def criar_skin(self,raridade,nome_skin, campeao):
+        return self.fabrica.criar_skin(raridade,campeao,nome_skin)
+    
+    def criar_skin_externa(self,titulo,personagem,custo):
+        skin_externa = SkinWildRift(titulo, personagem, custo)
+        return AdaptadorSkinCelulol(skin_externa)
+    
+    def compra_skin(self,cliente:Cliente, skin:Skin):
+        self.loja.comprar_skins(cliente,skin)
+    
+    def Iniciar_ranked(self,cliente:Cliente):
+        self.ranked.buscar_partida(cliente)
+        
 
 if __name__ == "__main__":
+    cliente_lol = FachadaClientLoL()
     
-    fabrica = FabricaSkin()
-    loja = LojaRiot()
-    ranked = Proxy_FilaRanqueada()
     invocador1 = Cliente("Hide on Bush#SKT","Faker","melhordomundo@123",6000,nivel=700)   
     invocador2 = Cliente("Nick#BR1","Nick","souNick21314",12000,nivel=350)  
     invocador3 = Cliente("Tyler1", "hehexd", "senha789", 0, nivel=100)
     invocador4 = Cliente("LuluDeDemacia", "luluhahaha", "senha9089", 0, nivel=10)
     invocador3.banido = True 
-    skin1 = fabrica.criar_skin("rara","Yasuo","Projeto Yasuo")    
-    skin2 = fabrica.criar_skin("lendaria","Lee sin", "Lee Sin Punhos Divinos")
-    skin3 = fabrica.criar_skin("ultimate","Lux","Lux Elementalista")
-    skin_astramante_mobile = SkinWildRift("Astramante", "Twisted Fate", 990)
-    skin_astramante_adaptada = AdaptadorSkinCelulol(skin_astramante_mobile)
-    loja.comprar_skins(invocador1,skin3)
-    loja.comprar_skins(invocador1,skin2)
-    loja.comprar_skins(invocador1,skin1)
-    loja.comprar_skins(invocador2,skin3)
-    loja.comprar_skins(invocador2,skin2)
-    loja.comprar_skins(invocador2,skin1)
-    loja.comprar_skins(invocador2,skin_astramante_adaptada)
+    
+    skin1 = cliente_lol.criar_skin("rara","Yasuo","Projeto Yasuo")    
+    skin2 = cliente_lol.criar_skin("lendaria","Lee sin", "Lee Sin Punhos Divinos")
+    skin3 = cliente_lol.criar_skin("ultimate","Lux","Lux Elementalista")
+    skin_astramante_adaptada = cliente_lol.criar_skin_externa("Astramante", "Twisted Fate", 990)
+    cliente_lol.compra_skin(invocador1,skin3)
+    cliente_lol.compra_skin(invocador1,skin2)
+    cliente_lol.compra_skin(invocador1,skin1)
+    cliente_lol.compra_skin(invocador2,skin3)
+    cliente_lol.compra_skin(invocador2,skin2)
+    cliente_lol.compra_skin(invocador2,skin1)
+    cliente_lol.compra_skin(invocador2,skin_astramante_adaptada)
+    
     invocador1.inventario.listar_skin(invocador1.nome_perfil)
     invocador2.inventario.listar_skin(invocador1.nome_perfil)
-    ranked.buscar_partida(invocador1)
-    ranked.buscar_partida(invocador2)
-    ranked.buscar_partida(invocador3)
-    ranked.buscar_partida(invocador4)
+    
+    cliente_lol.Iniciar_ranked(invocador1)
+    cliente_lol.Iniciar_ranked(invocador2)
+    cliente_lol.Iniciar_ranked(invocador3)
+    cliente_lol.Iniciar_ranked(invocador4)
     
     
