@@ -45,34 +45,50 @@ class Cliente():
         self._amigos = []
         self._skins = []
     
-    def comprar_skins(self, skin: Skin):
-        if self._moeda_jogo >= skin.preco:
-            self._moeda_jogo -= skin.preco
-            self._skins.append(skin)
-            print(f"{self.nome_perfil} voce comprou a skin {skin.nome}. Saldo restante na conta de {self._moeda_jogo} RP")
-        else:
-            print(f"saldo insuficiente para comprar a {skin.detalhe()}")
-            
+    def add_skin(self, skin: Skin):
+        self._skins.append(skin)
+               
     def listar_skin(self):
         print(f"\n skins do invocador {self.nome_perfil}:")
         for i in self._skins:
             print(f"{i.detalhe()}\n")
         print(f"\n")
+
+
+class LojaRiot:
+    _intancia = None
+    def __new__(cls):
+        if cls._intancia is None:
+            cls._intancia = super().__new__(cls)
+            print("\n Loja criada")
+        return cls._intancia
+    
+    def comprar_skins(self, cliente:Cliente, skin):
+        print(f"\n processando a compra da skin {skin.nome}")
+        if cliente._moeda_jogo >= skin.preco:
+            cliente._moeda_jogo -= skin.preco
+            cliente.add_skin(skin)
+            print(f"{cliente.nome_perfil} voce comprou a skin {skin.nome}. Saldo restante na conta de {cliente._moeda_jogo} RP")
+        else:
+            print(f"saldo insuficiente para comprar a {skin.detalhe()}")
         
 if __name__ == "__main__":
     
     fabrica = FabricaSkin()
-    
-    invocador = Cliente("Hide on Bush","Faker","melhordomundo@123",6000)        
+    loja = LojaRiot()
+    invocador1 = Cliente("Hide on Bush#SKT","Faker","melhordomundo@123",6000)   
+    invocador2 = Cliente("Nick#BR1","Nick","souNick21314",12000)     
     skin1 = fabrica.criar_skin("rara","Yasuo","Projeto Yasuo")    
     skin2 = fabrica.criar_skin("lendaria","Lee sin", "Lee Sin Punhos Divinos")
     skin3 = fabrica.criar_skin("ultimate","Lux","Lux Elementalista")
-    
-    invocador.comprar_skins(skin3)
-    invocador.comprar_skins(skin2)
-    invocador.comprar_skins(skin1)
-    
-    invocador.listar_skin()
+    loja.comprar_skins(invocador1,skin3)
+    loja.comprar_skins(invocador1,skin2)
+    loja.comprar_skins(invocador1,skin1)
+    loja.comprar_skins(invocador2,skin3)
+    loja.comprar_skins(invocador2,skin2)
+    loja.comprar_skins(invocador2,skin1)
+    invocador1.listar_skin()
+    invocador2.listar_skin()
 
     
     
